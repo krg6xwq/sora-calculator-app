@@ -1,0 +1,6 @@
+{
+  "name": "SORA Precision | MAS Singapore Overnight Rate Calculator",
+  "description": "Institutional and retail loan calculator utilizing MAS Singapore Overnight Rate Average (SORA) benchmarks, ACT/365 compounding conventions, and mortgage payment schedules.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
