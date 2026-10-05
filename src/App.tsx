@@ -19,7 +19,7 @@ import { generateAmortizationSchedule } from './utils/soraMath';
 
 export default function App() {
   const [records, setRecords] = useState<MasSoraRecord[]>(MAS_HISTORICAL_SORA_DATA);
-  const [source, setSource] = useState<'live_mas_api' | 'verified_mas_cache'>('verified_mas_cache');
+  const [source, setSource] = useState<'mas_apimg_gw' | 'live_mas_api' | 'verified_mas_cache'>('verified_mas_cache');
   const [lastUpdated, setLastUpdated] = useState<string>('09:00 SGT (MAS Publication Standard)');
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<string>('mortgage');
@@ -70,11 +70,13 @@ export default function App() {
       setSource(result.source);
       setLastUpdated(result.lastUpdated);
       if (isManual) {
-        showToast(
-          result.source === 'live_mas_api'
-            ? 'Successfully synced live rates from MAS DataStore API'
-            : 'Synchronized with verified MAS benchmark rate records'
-        );
+        let msg = 'Synchronized with verified MAS benchmark rate records';
+        if (result.source === 'mas_apimg_gw') {
+          msg = 'Connected to MAS APIMG Gateway (MAS_KEY_ID authenticated)';
+        } else if (result.source === 'live_mas_api') {
+          msg = 'Synced live rates from MAS DataStore API';
+        }
+        showToast(msg);
       }
     } catch (err) {
       if (isManual) {

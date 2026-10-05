@@ -4,7 +4,7 @@ import { formatPercent, formatSGD } from '../utils/soraMath';
 
 interface RateSummaryTickerProps {
   latestRecord: MasSoraRecord;
-  source: 'live_mas_api' | 'verified_mas_cache';
+  source: 'mas_apimg_gw' | 'live_mas_api' | 'verified_mas_cache';
   lastUpdated: string;
 }
 
@@ -13,6 +13,16 @@ export const RateSummaryTicker: React.FC<RateSummaryTickerProps> = ({
   source,
   lastUpdated
 }) => {
+  const getSourceLabel = () => {
+    switch (source) {
+      case 'mas_apimg_gw':
+        return 'MAS APIMG Gateway (Live)';
+      case 'live_mas_api':
+        return 'Official MAS Live Stream';
+      default:
+        return 'MAS Verified Benchmark Series';
+    }
+  };
   return (
     <section className="border-b border-slate-800/80 bg-slate-900/40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
@@ -29,7 +39,7 @@ export const RateSummaryTicker: React.FC<RateSummaryTickerProps> = ({
           <div className="flex items-center gap-2 text-xs">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
             <span className="text-slate-300">
-              {source === 'live_mas_api' ? 'Official MAS Live Stream' : 'MAS Verified Benchmark Series'}
+              {getSourceLabel()}
             </span>
             <span aria-hidden="true" className="text-slate-600">·</span>
             <span>{lastUpdated}</span>

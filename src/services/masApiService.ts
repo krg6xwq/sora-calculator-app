@@ -6,12 +6,42 @@ const MAS_API_ENDPOINT =
 
 export interface MasFetchResult {
   records: MasSoraRecord[];
-  source: 'live_mas_api' | 'verified_mas_cache';
+  source: 'mas_apimg_gw' | 'live_mas_api' | 'verified_mas_cache';
   lastUpdated: string;
+  masKeyConfigured?: boolean;
   errorMessage?: string;
 }
 
 export async function fetchMasSoraRates(): Promise<MasFetchResult> {
+  // 1. First attempt to query the local serverless /api/sora endpoint
+  try {
+    const soraRes = await fetch('/api/sora', {
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+
+    if (soraRes.ok) {
+      const soraData = await soraRes.json();
+      if (soraData?.status === 'success' && Array.isArray(soraData.records) && soraData.records.length > 0) {
+        return {
+          records: soraData.records,
+          source: 'mas_apimg_gw',
+          masKeyConfigured: true,
+          lastUpdated:
+            new Date().toLocaleTimeString('en-SG', {
+              timeZone: 'Asia/Singapore',
+              hour: '2-digit',
+              minute: '2-digit'
+            }) + ' SGT'
+        };
+      }
+    }
+  } catch (_e) {
+    // If running in pure static mode without server running, proceed to fallback
+  }
+
+  // 2. Secondary attempt: Direct query to MAS public datastore
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 4000);
@@ -56,7 +86,12 @@ export async function fetchMasSoraRates(): Promise<MasFetchResult> {
         return {
           records,
           source: 'live_mas_api',
-          lastUpdated: new Date().toLocaleTimeString('en-SG', { timeZone: 'Asia/Singapore', hour: '2-digit', minute: '2-digit' }) + ' SGT'
+          lastUpdated:
+            new Date().toLocaleTimeString('en-SG', {
+              timeZone: 'Asia/Singapore',
+              hour: '2-digit',
+              minute: '2-digit'
+            }) + ' SGT'
         };
       }
     }
